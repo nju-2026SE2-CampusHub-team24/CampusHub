@@ -1,7 +1,6 @@
 stages:
   - build
   - quality
-  - sync
 
 cache:
   key: frontend-node
@@ -27,32 +26,3 @@ lint_frontend:
   image: node:20
   script:
     - npm run lint
-
-sync_frontend_to_github:
-  stage: sync
-  image: alpine:3.20
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
-  before_script:
-    - apk add --no-cache git rsync
-  script:
-    - |
-      if [ -z "$GH_PUSH_USER" ] || [ -z "$GH_PUSH_TOKEN" ] || [ -z "$GH_MONOREPO_URL" ] || [ -z "$GH_SYNC_EMAIL" ]; then
-        echo "Missing required CI variables: GH_PUSH_USER, GH_PUSH_TOKEN, GH_MONOREPO_URL, GH_SYNC_EMAIL"
-        exit 1
-      fi
-    - git clone "https://${GH_PUSH_USER}:${GH_PUSH_TOKEN}@${GH_MONOREPO_URL}" github-mono
-    - cd github-mono
-    - git config user.name "${GH_PUSH_USER}"
-    - git config user.email "${GH_SYNC_EMAIL}"
-    - git checkout main || git checkout -b main
-    - mkdir -p frontend
-    - rsync -a --delete --exclude '.git/' "${CI_PROJECT_DIR}/" "frontend/"
-    - git add frontend
-    - |
-      if git diff --cached --quiet; then
-        echo "No frontend changes to sync."
-        exit 0
-      fi
-    - git commit -m "chore(sync): frontend from GitLab ${CI_COMMIT_SHORT_SHA}"
-    - git push origin main
