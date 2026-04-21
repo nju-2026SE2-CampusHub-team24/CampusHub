@@ -202,23 +202,21 @@ npm run lint
 
 ## 9. CI 配置说明
 
-CI 工作流文件：`.github/workflows/ci.yml`。
+本项目当前采用 GitLab Runner 的三仓库提交方式，CI 配置分别放在对应仓库根目录：
+
+- 前端：`frontend/.gitlab-ci.yml`
+- 后端：`backend/.gitlab-ci.yml`
+- 文档：`docs/` 仓库不启用 CI 检查
+
+执行内容如下：
 
 - 后端：编译检查（Maven Compile）+ 代码风格检查（Checkstyle）
 - 前端：构建检查（Vite Build）+ 代码风格检查（ESLint）
 
-当向 `main` 或 `dev` 推送，或提交到 `main` / `dev` 的 Pull Request 时自动触发。
+当向对应 GitLab 仓库的 `main` 分支推送时自动触发。
 
 ## 10. 开发与质量约定
 
 - 关键模块需具备基础测试
 - 文档、代码、测试同步推进
 - 保证提交内容可检查、可追踪、可复现
-
-## 11. P0 交付物对照
-
-- 团队章程文档：已提供（docs/P0/团队章程.md）
-- AI 协作契约：已提供（docs/P0/AI协作契约.pdf）
-- 项目 README：本文件
-
-P0 要求中的 README、.gitignore、基础项目结构与基础 CI 已完成。
